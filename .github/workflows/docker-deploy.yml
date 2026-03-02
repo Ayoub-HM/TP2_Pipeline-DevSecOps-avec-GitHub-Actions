@@ -59,6 +59,7 @@ jobs:
       # Trivy scan -> SARIF (on LOCAL image).
       - name: Run Trivy vulnerability scanner (SARIF)
         uses: aquasecurity/trivy-action@0.33.1
+        continue-on-error: true
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:scan
           format: sarif
@@ -67,9 +68,13 @@ jobs:
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: trivy-results.sarif
+
+      - name: Warn when SARIF is missing
+        if: always() && hashFiles('trivy-results.sarif') == ''
+        run: echo "trivy-results.sarif was not generated; skipping SARIF upload."
 
       # Security Gate
       - name: Run Trivy security gate (fail on CRITICAL/HIGH)
