@@ -1,5 +1,5 @@
 # Use a patched base image to reduce OS-level CVEs reported by Trivy.
-FROM nginx:1.29.5-alpine-slim
+FROM nginx:1.29.7-alpine-slim
 
 # Metadata
 LABEL maintainer="TP DevOps"
