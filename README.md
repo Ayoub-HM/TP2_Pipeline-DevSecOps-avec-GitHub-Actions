@@ -159,16 +159,17 @@ Pour que `.github/workflows/sonarqube.yml` fonctionne, vous devez faire ces acti
    ou bien modifier `sonar-project.properties` pour faire correspondre la cle exacte de votre projet.
 3. Dans SonarQube, generer un token d'analyse.
 4. Dans GitHub, ajouter un secret de repository nomme `SONAR_TOKEN`.
-5. Dans GitHub, ajouter une variable de repository nommee `SONAR_HOST_URL`.
-   Exemple : `https://votre-sonarqube.example.com`
+5. Si vous utilisez SonarQube Cloud, aucune variable `SONAR_HOST_URL` n'est necessaire.
+   Le workflow utilise directement `https://sonarcloud.io`.
 6. Relancer le workflow `SonarQube`.
 
 Notes importantes :
 
-- d'apres la documentation SonarSource, `SONAR_TOKEN` doit etre un secret GitHub et `SONAR_HOST_URL` une variable GitHub
+- d'apres la documentation SonarSource, `SONAR_TOKEN` doit etre un secret GitHub
 - l'action officielle recommandee est `SonarSource/sonarqube-scan-action`
 - sur SonarQube Server, l'analyse de pull request et l'analyse multi-branches sont disponibles a partir de Developer Edition
 - si vous utilisez une edition Community et que les PR posent probleme, gardez le workflow mais faites surtout vos verifications sur la branche principale de votre projet
+- si vous utilisez SonarQube Server au lieu de SonarQube Cloud plus tard, il faudra remettre `SONAR_HOST_URL` vers votre serveur
 
 ## Interventions manuelles necessaires
 
@@ -179,7 +180,5 @@ Certaines taches doivent etre faites dans GitHub par vous :
 - verifier `Code scanning` si GitHub demande une activation via l'interface
 - creer/configurer le projet SonarQube
 - ajouter `SONAR_TOKEN` dans les secrets GitHub
-- ajouter `SONAR_HOST_URL` dans les variables GitHub
 - observer et merger les PR Dependabot
 - faire la demonstration du faux secret puis nettoyer l'historique de test si necessaire
-
