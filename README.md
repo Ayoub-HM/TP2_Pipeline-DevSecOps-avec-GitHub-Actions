@@ -8,6 +8,8 @@
 Ce projet implemente un pipeline CI/CD securise pour Docker avec :
 
 - Analyse statique du code avec CodeQL
+- Analyse statique additionnelle avec Semgrep
+- Analyse qualite et securite avec SonarQube
 - Lint du Dockerfile avec Hadolint
 - Secret scanning avec Gitleaks
 - Scan de l'image Docker avec Trivy
@@ -42,11 +44,14 @@ Code Push
 [Push to GHCR] --> Si securite OK
 
 En parallele, CodeQL s'execute dans un workflow dedie sur `push` et `pull_request` pour `main` et `test`.
+Semgrep et SonarQube s'executent aussi dans leurs propres workflows dedies.
 
 ## Workflows GitHub Actions
 
 - `.github/workflows/docker-deploy.yml` : pipeline principal container
 - `.github/workflows/codeql-analysis.yml` : analyse SAST CodeQL
+- `.github/workflows/semgrep.yml` : analyse SAST Semgrep
+- `.github/workflows/sonarqube.yml` : analyse SonarQube
 - `.github/dependabot.yml` : surveillance automatique des dependances
 
 ## Branche de demonstration
@@ -133,6 +138,8 @@ Versions corrigees attendues ensuite :
 ## Resultats attendus
 
 - Workflow CodeQL actif sur `main` et `test`
+- Workflow Semgrep actif sur `main` et `test`
+- Workflow SonarQube actif sur `main` et `test`
 - Pipeline Docker enchainee dans l'ordre :
   - Secret Scanning
   - Security Analysis
@@ -143,6 +150,26 @@ Versions corrigees attendues ensuite :
 - PR Dependabot generees
 - SBOM exporte en artefact
 
+## Configuration SonarQube a faire par vous
+
+Pour que `.github/workflows/sonarqube.yml` fonctionne, vous devez faire ces actions manuelles :
+
+1. Creer un projet dans SonarQube Server.
+2. Donner au projet la cle `Ayoub-HM_TP2_Pipeline-DevSecOps-avec-GitHub-Actions`
+   ou bien modifier `sonar-project.properties` pour faire correspondre la cle exacte de votre projet.
+3. Dans SonarQube, generer un token d'analyse.
+4. Dans GitHub, ajouter un secret de repository nomme `SONAR_TOKEN`.
+5. Dans GitHub, ajouter une variable de repository nommee `SONAR_HOST_URL`.
+   Exemple : `https://votre-sonarqube.example.com`
+6. Relancer le workflow `SonarQube`.
+
+Notes importantes :
+
+- d'apres la documentation SonarSource, `SONAR_TOKEN` doit etre un secret GitHub et `SONAR_HOST_URL` une variable GitHub
+- l'action officielle recommandee est `SonarSource/sonarqube-scan-action`
+- sur SonarQube Server, l'analyse de pull request et l'analyse multi-branches sont disponibles a partir de Developer Edition
+- si vous utilisez une edition Community et que les PR posent probleme, gardez le workflow mais faites surtout vos verifications sur la branche principale de votre projet
+
 ## Interventions manuelles necessaires
 
 Certaines taches doivent etre faites dans GitHub par vous :
@@ -150,7 +177,9 @@ Certaines taches doivent etre faites dans GitHub par vous :
 - activer `Secret scanning`
 - activer `Push protection`
 - verifier `Code scanning` si GitHub demande une activation via l'interface
+- creer/configurer le projet SonarQube
+- ajouter `SONAR_TOKEN` dans les secrets GitHub
+- ajouter `SONAR_HOST_URL` dans les variables GitHub
 - observer et merger les PR Dependabot
 - faire la demonstration du faux secret puis nettoyer l'historique de test si necessaire
-
 
